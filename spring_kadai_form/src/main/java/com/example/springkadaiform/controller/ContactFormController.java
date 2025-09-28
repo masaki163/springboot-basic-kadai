@@ -1,6 +1,7 @@
+
+
 package com.example.springkadaiform.controller;
 
-import org.springframework.core.Conventions;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,14 +13,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.springkadaiform.form.ContactForm;
 
 
-
-
 @Controller
 public class ContactFormController {
+	
+	private static final String FORM_MODEL_KEY = "contactForm"; 
+	
 	@GetMapping("/form")
-	public String form(ContactForm contactForm, Model model) {
-		 model.addAttribute("contactForm", contactForm);
-	     return "contactFormView";
+	public String form(Model model) { 
+        
+	    if (!model.containsAttribute(FORM_MODEL_KEY)) {
+	        model.addAttribute(FORM_MODEL_KEY, new ContactForm());
+	    }
+	    
+	    return "contactFormView";
 	}
 	
 	@PostMapping("/confirm")
@@ -28,15 +34,18 @@ public class ContactFormController {
 
 		if (result.hasErrors()) {
             
-            redirectAttributes.addFlashAttribute("contactForm", form);
+            redirectAttributes.addFlashAttribute(FORM_MODEL_KEY, form);
             
-            redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX
-                    + Conventions.getVariableName(form), result);
+       
+            redirectAttributes.addFlashAttribute(
+                BindingResult.MODEL_KEY_PREFIX + FORM_MODEL_KEY, 
+                result);
 
             
-            return "contactFormView";
+            return "redirect:/form";
         }
-		model.addAttribute("contactForm", form); 
+		
+		model.addAttribute(FORM_MODEL_KEY, form); 
 
         return "confirmView";
     }
